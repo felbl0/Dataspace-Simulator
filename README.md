@@ -99,16 +99,19 @@ This separation makes policy filtering and semantic ranking behavior explicit an
 ## Project Structure
 
 ```text
-.
-|- backend/
-|  |- server.js
-|  |- db.js
-|  |- semantic.js
-|  |- policy.js
-|  \- state-machine.js
-|- frontend/
-|- docker-compose.yml
-\- README.md
+backend/
+  server.js            API and orchestration
+  db.js                SQLite schema and persistence
+  semantic.js          RDF mapping, Fuseki I/O, SPARQL search
+  policy.js            Policy evaluation
+  state-machine.js     Negotiation and transfer lifecycle
+frontend/
+  src/                 UI components and pages
+  package.json
+docker-compose.yml
+LICENSE
+LICENSE_non-code
+README.md
 ```
 
 ## License
