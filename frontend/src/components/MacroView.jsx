@@ -45,7 +45,7 @@ export const PRESET_PARTICIPANTS = {
         location: 'Essen, Deutschland',
         roles: { provider: true, consumer: false },
         domain: 'Manufacturing',
-        metadata: { industry: 'manufacturing', orgRole: 'tier1' },
+        metadata: { industry: 'manufacturing', orgRole: 'manufacturer' },
         ontologies: ['IFC'],
         dataCategories: ['Documents', 'Contracts'],
         formats: ['JSON', 'PDF', 'CSV'],
@@ -57,7 +57,7 @@ export const PRESET_PARTICIPANTS = {
         location: 'Stuttgart, Deutschland',
         roles: { provider: true, consumer: true },
         domain: 'Construction',
-        metadata: { industry: 'construction', orgRole: 'operator' },
+        metadata: { industry: 'construction', orgRole: 'customer' },
         ontologies: ['IFC', 'BOT'],
         dataCategories: ['BIM', 'GIS', 'Documents'],
         formats: ['JSON', 'IFC'],
@@ -81,7 +81,7 @@ export const PRESET_PARTICIPANTS = {
         location: 'Cologne, Germany',
         roles: { provider: true, consumer: true },
         domain: 'Energy',
-        metadata: { industry: 'energy', orgRole: 'operator' },
+        metadata: { industry: 'energy', orgRole: 'contractor' },
         ontologies: ['BRICK', 'SAREF'],
         dataCategories: ['IoT', 'Documents'],
         formats: ['JSON', 'PDF'],
@@ -178,16 +178,17 @@ const MacroView = forwardRef(({
 
     // Simulator is always local — no hosted-session fetching needed.
 
-    // Edit Handler - jetzt mit allen Metadaten
-    const handleEditNode = (id, data) => {
+    // Edit participant credentials
+    const handleEditNode = async (id, data) => {
         if (!isDemo) {
             console.log('[MacroView] Cannot edit node in hosted mode');
             return;
         }
-        setNodes(prev => ({
-            ...prev,
-            [id]: { ...prev[id], ...data }
-        }));
+        const patch = {
+            industry: (data?.industry || '').trim().toLowerCase(),
+            orgRole: (data?.orgRole || '').trim().toLowerCase(),
+        };
+        await updateNode(id, patch);
     };
 
     // Asset management state — loaded from backend SQLite, not localStorage

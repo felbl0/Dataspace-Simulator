@@ -1,14 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronRight, ChevronLeft, Plus, Database, Trash2 } from 'lucide-react';
 
-function makeCode(name) {
-    const base = String(name || 'space')
-        .toUpperCase()
-        .replace(/[^A-Z0-9]+/g, '')
-        .slice(0, 6) || 'SPACE';
-    return `${base}-${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
-}
-
 export default function DataspaceSidebar({
     dataspaces,
     activeDataspaceId,
@@ -30,7 +22,6 @@ export default function DataspaceSidebar({
         if (!trimmed) return;
         onCreate({
             name: trimmed,
-            code: makeCode(trimmed),
             isDemo: false,
         });
         setDraftName('');
@@ -63,7 +54,6 @@ export default function DataspaceSidebar({
                                         <span className="dataspace-item-name">{space.name}</span>
                                     </div>
                                     <div className="dataspace-item-right">
-                                        <span className="dataspace-item-code">{space.code}</span>
                                         {!space.isDemo && (
                                             <span
                                                 className="dataspace-delete"

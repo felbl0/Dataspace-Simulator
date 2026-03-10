@@ -229,12 +229,11 @@ function SimulatorPage() {
         setActiveConnector(null);
     };
 
-    const handleCreateDataspace = ({ name, code, isDemo = false }) => {
+    const handleCreateDataspace = ({ name, isDemo = false }) => {
         const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString(36)}`;
         const next = {
             id,
             name,
-            code,
             participants: 0,
             isDemo,
         };
@@ -277,7 +276,6 @@ function SimulatorPage() {
                 onPolicies={() => { }}
 
                 isDemo={true}
-                showBackButton={true}
                 title="Dataspace Simulator"
             />
 

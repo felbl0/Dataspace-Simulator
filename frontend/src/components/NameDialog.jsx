@@ -22,6 +22,7 @@ const NameDialog = ({ isOpen, onClose, onConfirm, editMode = false, initialData 
     const [industry, setIndustry] = useState('');
     const [orgRole, setOrgRole] = useState('');
     const [showPresets, setShowPresets] = useState(true);
+    const [hoveredPreset, setHoveredPreset] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -31,6 +32,7 @@ const NameDialog = ({ isOpen, onClose, onConfirm, editMode = false, initialData 
             setIndustry(d?.metadata?.industry || '');
             setOrgRole(d?.metadata?.orgRole || '');
             setShowPresets(true);
+            setHoveredPreset(null);
         }
     }, [isOpen, editMode, initialData]);
 
@@ -71,6 +73,10 @@ const NameDialog = ({ isOpen, onClose, onConfirm, editMode = false, initialData 
         display: 'block', color: 'var(--text-muted)', fontSize: '0.75rem',
         marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em'
     };
+    const fmt = (v) => {
+        if (!v) return 'n/a';
+        return String(v).charAt(0).toUpperCase() + String(v).slice(1);
+    };
 
     return (
         <div className="dialog-overlay">
@@ -95,24 +101,54 @@ const NameDialog = ({ isOpen, onClose, onConfirm, editMode = false, initialData 
                                 </button>
                             </div>
                             {showPresets && (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '16px' }}>
-                                    {availablePresets.map(([key, preset]) => (
-                                        <button key={key} type="button"
-                                            onClick={() => { onConfirm(preset); setName(''); setDid(''); setIndustry(''); setOrgRole(''); }}
-                                            style={{ padding: '10px 12px', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.35)', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}
-                                            onMouseOver={e => e.currentTarget.style.background = 'rgba(34,197,94,0.22)'}
-                                            onMouseOut={e => e.currentTarget.style.background = 'rgba(34,197,94,0.12)'}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <Building2 size={15} color="#22c55e" />
-                                                <div>
-                                                    <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>{preset.name}</div>
-                                                    <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{preset.location}</div>
-                                                </div>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
+                                <>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                                        {availablePresets.map(([key, preset]) => {
+                                            const isHovered = hoveredPreset?.bpn === preset.bpn;
+                                            return (
+                                                <button key={key} type="button"
+                                                    onClick={() => { onConfirm(preset); setName(''); setDid(''); setIndustry(''); setOrgRole(''); }}
+                                                    onMouseEnter={() => setHoveredPreset(preset)}
+                                                    onMouseLeave={() => setHoveredPreset(null)}
+                                                    style={{
+                                                        padding: '10px 12px',
+                                                        background: isHovered ? 'rgba(34,197,94,0.22)' : 'rgba(34,197,94,0.12)',
+                                                        border: '1px solid rgba(34,197,94,0.35)',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        textAlign: 'left',
+                                                        transition: 'background 120ms ease'
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <Building2 size={15} color="#22c55e" />
+                                                        <div>
+                                                            <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>{preset.name}</div>
+                                                            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{preset.location}</div>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    {hoveredPreset && (
+                                        <div style={{
+                                            marginBottom: '16px',
+                                            padding: '10px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid var(--border-subtle)',
+                                            background: 'var(--bg-surface)',
+                                            fontSize: '0.76rem',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Preview Credentials</div>
+                                            <div>Industry: <strong>{fmt(hoveredPreset.metadata?.industry)}</strong></div>
+                                            <div>Org. Role: <strong>{fmt(hoveredPreset.metadata?.orgRole)}</strong></div>
+                                            <div>DID: <span style={{ fontFamily: 'monospace', fontSize: '0.72rem' }}>{hoveredPreset.bpn}</span></div>
+                                            <div>Capabilities: <strong>{hoveredPreset.roles?.provider ? 'Provider' : ''}{hoveredPreset.roles?.provider && hoveredPreset.roles?.consumer ? ' + ' : ''}{hoveredPreset.roles?.consumer ? 'Consumer' : ''}</strong></div>
+                                        </div>
+                                    )}
+                                </>
                             )}
                             <div style={{ borderBottom: '1px solid var(--border-subtle)', marginBottom: '16px', position: 'relative' }}>
                                 <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '-10px', background: 'var(--bg-card)', padding: '0 12px', color: '#64748b', fontSize: '0.75rem' }}>

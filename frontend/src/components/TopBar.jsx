@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Sun, Moon, ArrowLeft, RotateCcw } from 'lucide-react';
+import { Sun, Moon, RotateCcw } from 'lucide-react';
 
 import './Components.css';
 
@@ -9,14 +8,9 @@ const TopBar = ({
     onReset,
 
     isDemo = false,
-    showBackButton = false,
     title = 'Data Space Demo',
     showThemeToggle = false,
-    dataspaceCode = null,
-    dataspaceName = null,
-    backTo = '/'
 }) => {
-    const [copied, setCopied] = useState(false);
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem('theme') || 'light';
     });
@@ -32,23 +26,9 @@ const TopBar = ({
         document.documentElement.setAttribute('data-theme', newTheme);
     };
 
-    const copyJoinCode = () => {
-        if (dataspaceCode) {
-            navigator.clipboard.writeText(dataspaceCode);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
     return (
         <div className="top-bar">
-            <div className="top-bar-left">
-                {showBackButton && (
-                    <Link to={backTo} className="back-button" title="Back">
-                        <ArrowLeft size={20} />
-                    </Link>
-                )}
-            </div>
+            <div className="top-bar-left" />
             <div className="top-bar-center">
                 <div className="top-bar-title">{title}</div>
             </div>

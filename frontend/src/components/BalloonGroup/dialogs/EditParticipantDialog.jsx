@@ -1,29 +1,19 @@
-import React, { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
-import { ONTOLOGY_OPTIONS, DOMAIN_OPTIONS } from '../constants';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
+
+const INDUSTRY_OPTIONS = ['construction', 'manufacturing', 'logistics', 'energy', 'automotive'];
+const ROLE_OPTIONS = ['customer', 'contractor', 'supplier', 'manufacturer'];
 
 const EditParticipantDialog = ({ show, participantData, name, bpn, onSave, onCancel }) => {
-    const [editForm, setEditForm] = useState({
-        name: name,
-        bpn: bpn,
-        location: '',
-        dspEndpoint: '',
-        catalogUrl: '',
-        roles: { provider: true, consumer: true },
-        domain: '',
-        ontologies: [],
-        dataCategories: [],
-        formats: [],
-        tags: '',
-        ...participantData
-    });
+    const [industry, setIndustry] = useState('');
+    const [orgRole, setOrgRole] = useState('');
 
-    const [showEditAdvanced, setShowEditAdvanced] = useState(false);
-
-    const handleSave = () => {
-        onSave(editForm);
-    };
+    useEffect(() => {
+        if (!show) return;
+        setIndustry(participantData?.industry || participantData?.metadata?.industry || '');
+        setOrgRole(participantData?.orgRole || participantData?.metadata?.orgRole || '');
+    }, [show, participantData]);
 
     if (!show) return null;
 
@@ -43,27 +33,25 @@ const EditParticipantDialog = ({ show, participantData, name, bpn, onSave, onCan
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                zIndex: 1000
+                zIndex: 1000,
             }}
         >
             <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
+                exit={{ scale: 0.95, opacity: 0 }}
                 onWheel={(e) => e.stopPropagation()}
                 style={{
                     background: 'var(--bg-card)',
                     padding: '24px',
                     borderRadius: '12px',
                     border: '1px solid var(--border-subtle)',
-                    width: '500px',
-                    maxHeight: '80vh',
-                    overflow: 'auto',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                    width: '460px',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
                 }}
             >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Edit Participant</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Edit Credentials</h3>
                     <button
                         onClick={onCancel}
                         style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
@@ -74,150 +62,51 @@ const EditParticipantDialog = ({ show, participantData, name, bpn, onSave, onCan
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <div>
-                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Name *</label>
+                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Name</label>
                         <input
-                            type="text"
-                            value={editForm.name}
-                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                            value={name || ''}
+                            readOnly
+                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                         />
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>BPN *</label>
+                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>DID</label>
                         <input
-                            type="text"
-                            value={editForm.bpn}
-                            onChange={(e) => setEditForm({ ...editForm, bpn: e.target.value })}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem', fontFamily: 'monospace', boxSizing: 'border-box' }}
+                            value={bpn || ''}
+                            readOnly
+                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace', boxSizing: 'border-box' }}
                         />
                     </div>
 
-                    <div>
-                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Location</label>
-                        <input
-                            type="text"
-                            value={editForm.location || ''}
-                            onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                            onClick={(e) => e.stopPropagation()}
-                            placeholder="e.g. Munich, Germany"
-                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                        />
-                    </div>
-
-                    <div>
-                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>DSP Endpoint</label>
-                        <input
-                            type="text"
-                            value={editForm.dspEndpoint || ''}
-                            onChange={(e) => setEditForm({ ...editForm, dspEndpoint: e.target.value, catalogUrl: e.target.value ? `${e.target.value}/catalog` : '' })}
-                            onClick={(e) => e.stopPropagation()}
-                            placeholder="https://connector.example.com/api/dsp"
-                            style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.85rem', fontFamily: 'monospace', boxSizing: 'border-box' }}
-                        />
-                    </div>
-
-                    <div>
-                        <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '6px' }}>Roles</label>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem', cursor: 'pointer' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={editForm.roles?.provider || false}
-                                    onChange={(e) => setEditForm({ ...editForm, roles: { ...editForm.roles, provider: e.target.checked } })}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                                Provider
-                            </label>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem', cursor: 'pointer' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={editForm.roles?.consumer || false}
-                                    onChange={(e) => setEditForm({ ...editForm, roles: { ...editForm.roles, consumer: e.target.checked } })}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                                Consumer
-                            </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                            <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Industry</label>
+                            <select
+                                value={industry}
+                                onChange={(e) => setIndustry(e.target.value)}
+                                style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem' }}
+                            >
+                                <option value="">-- any --</option>
+                                {INDUSTRY_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Org. Role</label>
+                            <select
+                                value={orgRole}
+                                onChange={(e) => setOrgRole(e.target.value)}
+                                style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem' }}
+                            >
+                                <option value="">-- any --</option>
+                                {ROLE_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
-
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setShowEditAdvanced(!showEditAdvanced); }}
-                        style={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            width: '100%', padding: '10px', background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid var(--border-subtle)', borderRadius: '6px', color: '#93c5fd',
-                            cursor: 'pointer', fontSize: '0.85rem'
-                        }}
-                    >
-                        <span>Metadata</span>
-                        {showEditAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-
-                    <AnimatePresence>
-                        {showEditAdvanced && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '14px' }}
-                            >
-                                <div>
-                                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Domain</label>
-                                    <select
-                                        value={editForm.domain || ''}
-                                        onChange={(e) => setEditForm({ ...editForm, domain: e.target.value })}
-                                        onClick={(e) => e.stopPropagation()}
-                                        style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem' }}
-                                    >
-                                        <option value="">-- Select --</option>
-                                        {DOMAIN_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '6px' }}>Ontologies</label>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                                        {ONTOLOGY_OPTIONS.map(ont => (
-                                            <button
-                                                key={ont}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const current = editForm.ontologies || [];
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        ontologies: current.includes(ont) ? current.filter(o => o !== ont) : [...current, ont]
-                                                    });
-                                                }}
-                                                style={{
-                                                    padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', cursor: 'pointer',
-                                                    border: (editForm.ontologies || []).includes(ont) ? '1px solid #3b82f6' : '1px solid #64748b',
-                                                    background: (editForm.ontologies || []).includes(ont) ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                                                    color: (editForm.ontologies || []).includes(ont) ? '#93c5fd' : '#94a3b8'
-                                                }}
-                                            >
-                                                {ont}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '4px' }}>Tags</label>
-                                    <input
-                                        type="text"
-                                        value={Array.isArray(editForm.tags) ? editForm.tags.join(', ') : (editForm.tags || '')}
-                                        onChange={(e) => setEditForm({ ...editForm, tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) })}
-                                        onClick={(e) => e.stopPropagation()}
-                                        placeholder="e.g. Construction, Infrastructure"
-                                        style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                                    />
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
@@ -228,7 +117,7 @@ const EditParticipantDialog = ({ show, participantData, name, bpn, onSave, onCan
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={() => onSave({ industry, orgRole })}
                         style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', borderRadius: '6px', color: 'var(--text-primary)', cursor: 'pointer' }}
                     >
                         Save
